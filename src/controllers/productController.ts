@@ -52,3 +52,25 @@ export const getCategories = async (req: Request, res: Response) => {
     return res.status(500).json({ error: (error as Error).message });
   }
 };
+
+export const getProductDetail = async (req: Request, res: Response) => {
+  const productId = req.params.id;
+
+  try {
+    let query = supabase
+      .from("products")
+      .select("*")
+      .eq("id", productId)
+      .single();
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    return res.status(200).json(data);
+  } catch (error) {
+    return res.status(500).json({ error: (error as Error).message });
+  }
+};
