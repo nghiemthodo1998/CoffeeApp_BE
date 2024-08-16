@@ -1,7 +1,7 @@
-import { dataProduct } from "../data";
-import { query } from "../config/database";
 // import { v4 as uuidv4 } from "uuid";
-import { Product } from "../models/productModel";
+import { query } from "../../config/database";
+import { dataProduct } from "../../data";
+import { Product } from "../../models/productModel";
 
 async function addProduct(products: Product[]) {
   try {
