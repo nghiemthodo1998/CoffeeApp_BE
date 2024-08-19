@@ -74,3 +74,42 @@ export const getProductDetail = async (req: Request, res: Response) => {
     return res.status(500).json({ error: (error as Error).message });
   }
 };
+
+export const toggleFavoriteProduct = async (req: Request, res: Response) => {
+  const productId = req.params.id;
+
+  try {
+    const { data: product, error: fetchError } = await supabase
+      .from("products")
+      .select("favorite")
+      .eq("product_id", productId)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching product:", fetchError);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const newFavoriteStatus = !product.favorite;
+
+    const { data, error: updateError } = await supabase
+      .from("products")
+      .update({ favorite: newFavoriteStatus })
+      .eq("product_id", productId)
+      .single();
+
+    if (updateError) {
+      console.error("Error updating product:", updateError);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    res.json(data);
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
