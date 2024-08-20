@@ -75,41 +75,31 @@ export const getProductDetail = async (req: Request, res: Response) => {
   }
 };
 
-export const toggleFavoriteProduct = async (req: Request, res: Response) => {
+export const updateFavoriteProduct = async (req: Request, res: Response) => {
   const productId = req.params.id;
 
   try {
-    const { data: product, error: fetchError } = await supabase
+    const { data: product, error } = await supabase
       .from("products")
-      .select("favorite")
-      .eq("product_id", productId)
+      .select("favourite")
+      .eq("id", productId)
       .single();
 
-    if (fetchError) {
-      console.error("Error fetching product:", fetchError);
-      return res.status(500).json({ error: "Internal Server Error" });
+    if (error) {
+      return res.status(400).json({ error: "Product not found" });
     }
 
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
+    const updatedFavorite = !product.favourite;
 
-    const newFavoriteStatus = !product.favorite;
-
-    const { data, error: updateError } = await supabase
+    const { error: updateError } = await supabase
       .from("products")
-      .update({ favorite: newFavoriteStatus })
-      .eq("product_id", productId)
-      .single();
+      .update({ favourite: updatedFavorite })
+      .eq("id", productId);
 
     if (updateError) {
-      console.error("Error updating product:", updateError);
-      return res.status(500).json({ error: "Internal Server Error" });
+      return res.status(400).json({ error: "Error updating favorite" });
     }
 
-    res.json(data);
-  } catch (err) {
-    console.error("Error:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+    return res.status(200).json({ success: true, favorite: updatedFavorite });
+  } catch (error) {}
 };
