@@ -103,3 +103,24 @@ export const updateFavoriteProduct = async (req: Request, res: Response) => {
     return res.status(200).json({ success: true, favorite: updatedFavorite });
   } catch (error) {}
 };
+
+export const getFavoriteProductList = async (req: Request, res: Response) => {
+  try {
+    let query = supabase
+      .from("products")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .eq("favourite", true);
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log("error", error);
+    return res.status(500).json({ error: (error as Error).message });
+  }
+};
